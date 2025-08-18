@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.movieService.db.name }}
+spec:
+  serviceName: {{ .Values.movieService.db.name }}  # Headless service obligatoire
+  replicas: {{ .Values.movieService.db.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.movieService.db.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.movieService.db.name }}
+    spec:
+      containers:
+      - name: {{ .Values.movieService.db.name }}
+        image: {{ .Values.movieService.db.image }}:{{ .Values.movieService.db.tag }}
+        ports:
+        - containerPort: {{ .Values.movieService.db.port }}
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.movieService.db.user }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.movieService.db.password }}
+        - name: POSTGRES_DB
+          value: {{ .Values.movieService.db.dbName }}
+        volumeMounts:
+        - name: movie-db-storage
+          mountPath: /var/lib/postgresql/data
+
+  volumeClaimTemplates:
+  - metadata:
+      name: movie-db-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: {{ .Values.movieService.db.storage }}

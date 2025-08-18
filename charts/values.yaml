@@ -1,0 +1,49 @@
+nginx:
+  name: nginx
+  port: 8080
+  replicas: 1
+  image: nginx
+  tag: latest
+  storage: 2Gi
+
+movieService:
+  name: movie-service
+  replicas: 1
+  port: 8000
+  servicePort: 8001
+  image: dos7/movie
+  tag: latest
+  storage: 2Gi
+  db:
+    name: movie-db
+    replicas: 1
+    user: movie_db_username
+    password: movie_db_password
+    dbName: movie_db_dev
+    port: 5432
+    image: postgres
+    tag: 12.1-alpine
+    storage: 2Gi
+
+castService:
+  name: cast-service
+  replicas: 1
+  port: 8000
+  servicePort: 8002
+  image: dos7/cast
+  tag: latest
+  storage: 2Gi
+
+  db:
+    name: cast-db
+    replicas: 1
+    user: cast_db_username
+    password: cast_db_password
+    dbName: cast_db_dev
+    port: 5432
+    image: postgres
+    tag: 12.1-alpine
+    storage: 2Gi
+
+ingress:
+  host: movie-cast.ip-ddns.com

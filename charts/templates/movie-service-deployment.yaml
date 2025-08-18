@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.movieService.name }}
+spec:
+  replicas: {{ .Values.movieService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.movieService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.movieService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.movieService.name }}
+        image: {{ .Values.movieService.image }}:{{ .Values.movieService.tag }}
+        ports:
+        - containerPort: {{ .Values.movieService.port }}
+        env:
+        - name: DATABASE_URI
+          value: postgresql://{{ .Values.movieService.db.user }}:{{ .Values.movieService.db.password }}@{{ .Values.movieService.db.name }}:{{ .Values.movieService.db.port }}/{{ .Values.movieService.db.dbName }}
+        - name: CAST_SERVICE_HOST_URL
+          value: http://{{ .Values.castService.name }}:{{ .Values.castService.servicePort }}/api/v1/casts/
+        command: ["uvicorn"]
+        args: ["app.main:app", "--host", "0.0.0.0", "--port", "{{ .Values.movieService.port }}"]
+        volumeMounts:
+        - name: app-volume
+          mountPath: /app/data
+      volumes:
+      - name: app-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.movieService.name }}-pvc

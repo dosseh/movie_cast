@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.castService.name }}
+spec:
+  replicas: {{ .Values.castService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.castService.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.castService.name }}
+    spec:
+      containers:
+      - name: {{ .Values.castService.name }}
+        image: {{ .Values.castService.image }}:{{ .Values.castService.tag }}
+        ports:
+        - containerPort: {{ .Values.castService.port }}
+        env:
+        - name: DATABASE_URI
+          value: postgresql://{{ .Values.castService.db.user }}:{{ .Values.castService.db.password }}@{{ .Values.castService.db.name }}:{{ .Values.castService.db.port }}/{{ .Values.castService.db.dbName }}
+        command: ["uvicorn"]
+        args: ["app.main:app", "--host", "0.0.0.0", "--port", "{{ .Values.castService.port }}"]
+        volumeMounts:
+        - name: app-volume
+          mountPath: /app/data
+      volumes:
+      - name: app-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.castService.name }}-pvc

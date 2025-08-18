@@ -44,49 +44,55 @@ pipeline {
         stage('Run') {
             steps {
                 sh '''
-                # Base movie
-                docker run -d \
-                    --name movie-db \
+                # Créer un réseau Docker dédié
+                docker network create movie-cast-net || true
+        
+                # Lancer la base de données movie
+                docker run -d --name movie-db --network movie-cast-net \
                     -e POSTGRES_DB=$DB_MOVIE_NAME \
                     -e POSTGRES_USER=$MOVIE_DB_LOGIN_USR \
                     -e POSTGRES_PASSWORD=$MOVIE_DB_LOGIN_PSW \
                     $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
-                
-                # Base cast  
-                docker run -d \
-                    --name cast-db \
+        
+                # Lancer la base de données cast
+                docker run -d --name cast-db --network movie-cast-net \
                     -e POSTGRES_DB=$DB_CAST_NAME \
                     -e POSTGRES_USER=$CAST_DB_LOGIN_USR \
                     -e POSTGRES_PASSWORD=$CAST_DB_LOGIN_PSW \
                     $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
-
-                echo "Attendre que les bases de données soient prêtes..."
-                sleep 20
-
-                # Lancer les services de l'appli
-                docker run -d \
-                    --name movie-service \
+        
+                # Attendre que les bases de données soient prêtes
+                echo "Attente des bases de données..."
+                until docker exec movie-db pg_isready -U $MOVIE_DB_LOGIN_USR; do
+                    echo "Waiting for movie-db..."
+                    sleep 2
+                done
+        
+                until docker exec cast-db pg_isready -U $CAST_DB_LOGIN_USR; do
+                    echo "Waiting for cast-db..."
+                    sleep 2
+                done
+        
+                # Lancer le service movie
+                docker run -d --name movie-service --network movie-cast-net \
                     -p 8001:8000 \
                     -e DATABASE_URI="postgresql://$MOVIE_DB_LOGIN_USR:$MOVIE_DB_LOGIN_PSW@movie-db:5432/$DB_MOVIE_NAME" \
                     $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG \
                     uvicorn app.main:app --host 0.0.0.0 --port 8000
-
-                docker run -d \
-                    --name cast-service \
+        
+                # Lancer le service cast
+                docker run -d --name cast-service --network movie-cast-net \
                     -p 8002:8000 \
                     -e DATABASE_URI="postgresql://$CAST_DB_LOGIN_USR:$CAST_DB_LOGIN_PSW@cast-db:5432/$DB_CAST_NAME" \
                     $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG \
                     uvicorn app.main:app --host 0.0.0.0 --port 8000
-
+        
                 # Lancer le serveur web nginx
-                docker run -d \
-                    --name web \
+                docker run -d --name web --network movie-cast-net \
+                    -p 80:80 \
                     $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
-
-                echo "Attendre le démarrage de tous les services..."
-                sleep 10
-
-                # Vérifier que tous les conteneurs tournent
+        
+                echo "Vérification que tous les conteneurs tournent..."
                 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
                 '''
             }

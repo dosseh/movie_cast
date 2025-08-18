@@ -77,7 +77,6 @@ pipeline {
                 # Lancer le serveur web nginx
                 docker run -d \
                     --name web \
-                    -p 8080:80 \
                     $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
 
                 echo "Attendre le démarrage de tous les services..."

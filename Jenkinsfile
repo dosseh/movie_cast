@@ -16,7 +16,7 @@ pipeline {
         DOCKER_IMAGE_WEB = "nginx"
         DOCKER_TAG_WEB = "latest"
 
-    }
+    } 
     agent any
     stages {
 		stage('Init') {

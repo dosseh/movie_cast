@@ -20,14 +20,14 @@ pipeline {
     agent any
     stages {
 		stage('Init') {
-		    when { expression { true } } // Ce stage est exécuté normalement
+		    when { expression { false } } // Ce stage est exécuté caché
 		    steps {
 		        script {
 		            // ------------------------------
-		            // Variables globales pour le pipeline
+		            // Variables DOCKER_TAG (concatenation de BUILD_ID et COMMIT_SHORT)
 		            // ------------------------------
-		            env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-		            env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
+		            COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+		            DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
 		        }
 
 		        // ------------------------------

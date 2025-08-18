@@ -10,8 +10,8 @@ pipeline {
         DOCKER_LOGIN = credentials('DOCKER_LOGIN')
         MOVIE_DB_LOGIN = credentials('MOVIE_DB_LOGIN')
         CAST_DB_LOGIN = credentials('CAST_DB_LOGIN')
-        DB_MOVIE_NAME = movie_db_dev
-        DB_CAST_NAME = cast_db_dev
+        DB_MOVIE_NAME = "movie_db_dev"
+        DB_CAST_NAME = "cast_db_dev"
         DOCKER_IMAGE_DB = "postgres"
         DOCKER_TAG_DB = "12.1-alpine"
         DOCKER_IMAGE_WEB = "nginx"

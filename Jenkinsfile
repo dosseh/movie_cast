@@ -98,40 +98,50 @@ pipeline {
             }
         }
         stage('Test') {
-            steps {
-                sh '''
-                # Vérifications basiques de l'état des services
-                echo "Exécution des vérifications de santé..."
+                    steps {
+                        sh '''
+                        echo "🔍 Test des bases de données..."
+                        
+                        # Movie DB
+                        if ! docker exec movie-db pg_isready -U $MOVIE_DB_LOGIN_USR -d $DB_MOVIE_NAME; then
+                            echo " Movie DB KO"
+                            exit 1
+                        else
+                            echo " Movie DB disponible"
+                        fi
+                        
+                        # Cast DB
+                        if ! docker exec cast-db pg_isready -U $CAST_DB_LOGIN_USR -d $DB_CAST_NAME; then
+                            echo " Cast DB KO"
+                            exit 1
+                        else
+                            echo " Cast DB disponible"
+                        fi
+
+                        
+                        echo "Test des services depuis le conteneur web (Nginx)..."
+        
+                        # Test Movie service
+                        if ! docker exec web curl -sf http://movie-service:8001/api/v1/movies/docs; then
+                            echo " Movie service KO"
+                            exit 1
+                        else
+                            echo " Movie service OK"
+                        fi
+        
+                        # Test Cast service
+                        if ! docker exec web curl -sf http://cast-service:8002/api/v1/casts/docs; then
+                            echo " Cast service KO"
+                            exit 1
+                        else
+                            echo "Cast service OK"
+                        fi
+        
+                        echo " Tous les tests des services sont passés !"
+                        '''
+                    }
+                }
                 
-                # Vérifie si les conteneurs sont en cours d'exécution
-                if ! docker ps | grep -q movie-service; then
-                    echo "ERREUR : movie-service n'est pas en cours d'exécution"
-                    exit 1
-                fi
-                
-                if ! docker ps | grep -q cast-service; then
-                    echo "ERREUR : cast-service n'est pas en cours d'exécution"
-                    exit 1
-                fi
-                
-                if ! docker ps | grep -q web; then
-                    echo "ERREUR : le service web n'est pas en cours d'exécution"
-                    exit 1
-                fi
-                
-                # Teste les connexions aux bases de données
-                docker exec movie-db pg_isready -U movie_db_username || exit 1
-                docker exec cast-db pg_isready -U cast_db_username || exit 1
-                
-                # Vérifier que les bases de données ont été créées avec les bons noms
-                echo "Vérification des bases de données..."
-                docker exec movie-db psql -U movie_db_username -d movie_db_dev -c "SELECT 1;" || echo "AVERTISSEMENT : Connexion à movie_db_dev échouée"
-                docker exec cast-db psql -U cast_db_username -d cast_db_dev -c "SELECT 1;" || echo "AVERTISSEMENT : Connexion à cast_db_dev échouée"
-                
-                echo "Toutes les vérifications de santé sont passées avec succès !"
-                '''
-            }
-        }
         stage('Push') {
             steps {
                 sh '''
@@ -142,7 +152,7 @@ pipeline {
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
                 
-                echo "All images pushed successfully!"
+                echo "Toute les images sont poussées avec succès !"
                 '''
             }
         }

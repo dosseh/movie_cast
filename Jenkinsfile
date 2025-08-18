@@ -67,11 +67,13 @@ pipeline {
                 docker run -d \
                     --name movie-service \
                     -p 8001:8000 \
+                    -e DATABASE_URL="postgresql://$MOVIE_DB_LOGIN_USR:$MOVIE_DB_LOGIN_PSW@movie-db:5432/$DB_MOVIE_NAME" \
                     $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
 
                 docker run -d \
                     --name cast-service \
                     -p 8002:8000 \
+                    -e DATABASE_URL="postgresql://$CAST_DB_LOGIN_USR:$CAST_DB_LOGIN_PSW@cast-db:5432/$DB_CAST_NAME" \
                     $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
 
                 # Lancer le serveur web nginx

@@ -1,4 +1,5 @@
 pipeline {
+    agent any
 
     environment {
         KUBE_DOMAIN = "http://movie-cast.ip-ddns.com"
@@ -14,14 +15,14 @@ pipeline {
         DOCKER_IMAGE_WEB = "nginx"
         DOCKER_TAG_WEB = "latest"
     }
-    
-    agent any
 
     stages {
         stage('Build') {
             steps {
-            	script {
                 sh '''
+                docker pull $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
+                docker pull $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
+
                 docker build -t $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG movie-service/
                 docker build -t $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG cast-service/
                 sleep 6
@@ -31,15 +32,10 @@ pipeline {
                 docker tag $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG
                 '''
             }
-
-            }
         }
-        
 
         stage('Run') {
             steps {
-            script {
-            
                 sh '''
                 docker run -d --name movie-service $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
                 docker run -d --name cast-service $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
@@ -48,14 +44,11 @@ pipeline {
                 docker run -d --name web -p 8080:80 $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG
                 sleep 10
                 '''
-                }
             }
         }
 
         stage('Push') {
-
             steps {
-            	script {
                 sh '''
                 docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW
                 docker push $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
@@ -65,8 +58,21 @@ pipeline {
                 docker push $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG
                 '''
             }
+        }
+    }
 
-          }
+    post {
+        always {
+            echo "🧹 Nettoyage des conteneurs et images Docker..."
+            sh '''
+            docker rm -f movie-service || true
+            docker rm -f cast-service || true
+            docker rm -f movie-db || true
+            docker rm -f cast-db || true
+            docker rm -f web || true
+
+            docker system prune -af --volumes || true
+            '''
         }
     }
 }

@@ -1,6 +1,4 @@
 pipeline {
-    agent any
-
     environment {
         KUBE_DOMAIN = "http://movie-cast.ip-ddns.com"
         KUBE_NAMESPACE_DEV = "dev"
@@ -16,16 +14,18 @@ pipeline {
         DOCKER_TAG_WEB = "latest"
     }
 
+    agent any
+
     stages {
         stage('Build') {
             steps {
                 sh '''
-                docker pull $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
-                docker pull $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
-
                 docker build -t $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG movie-service/
                 docker build -t $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG cast-service/
                 sleep 6
+
+                docker pull $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
+                docker pull $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
 
                 docker tag $DOCKER_IMAGE_DB:$DOCKER_TAG_DB $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-db-$DOCKER_TAG
                 docker tag $DOCKER_IMAGE_DB:$DOCKER_TAG_DB $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:cast-db-$DOCKER_TAG
@@ -37,6 +37,10 @@ pipeline {
         stage('Run') {
             steps {
                 sh '''
+                # Nettoyage des anciens conteneurs si déjà présents
+                docker rm -f movie-service cast-service movie-db cast-db web || true
+
+                # Lancer les nouveaux conteneurs
                 docker run -d --name movie-service $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
                 docker run -d --name cast-service $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
                 docker run -d --name movie-db -p 5432:5432 $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:movie-db-$DOCKER_TAG
@@ -58,21 +62,6 @@ pipeline {
                 docker push $DOCKER_LOGIN_USR/$DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG
                 '''
             }
-        }
-    }
-
-    post {
-        always {
-            echo "🧹 Nettoyage des conteneurs et images Docker..."
-            sh '''
-            docker rm -f movie-service || true
-            docker rm -f cast-service || true
-            docker rm -f movie-db || true
-            docker rm -f cast-db || true
-            docker rm -f web || true
-
-            docker system prune -af --volumes || true
-            '''
         }
     }
 }

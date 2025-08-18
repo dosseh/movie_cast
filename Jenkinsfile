@@ -6,7 +6,6 @@ pipeline {
         KUBE_NAMESPACE_STAGING = "staging"
         KUBE_NAMESPACE_PROD = "prod"
         DOCKER_HUB_REPOSITORY_IMAGE = "dos7/movie-cast"
-        DOCKER_TAG = "v.${BUILD_ID}.0"
         DOCKER_LOGIN = credentials('DOCKER_LOGIN')
         MOVIE_DB_LOGIN = credentials('MOVIE_DB_LOGIN')
         CAST_DB_LOGIN = credentials('CAST_DB_LOGIN')
@@ -16,31 +15,51 @@ pipeline {
         DOCKER_TAG_DB = "12.1-alpine"
         DOCKER_IMAGE_WEB = "nginx"
         DOCKER_TAG_WEB = "latest"
+
     }
     agent any
     stages {
-        stage('Cleanup') {
-            steps {
-                sh '''
-                # Arrêter et supprimer des conteneurs qui potentiellement tournent
-                docker stop movie-service cast-service movie-db cast-db web || true
-                docker rm movie-service cast-service movie-db cast-db web || true
-                '''
-            }
-        }
+		stage('Init') {
+		    when { expression { true } } // Ce stage est exécuté normalement
+		    steps {
+		        script {
+		            // ------------------------------
+		            // Variables globales pour le pipeline
+		            // ------------------------------
+		            env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+		            env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
+		        }
+
+		        // ------------------------------
+		        // Cleanup des conteneurs existants
+		        // ------------------------------
+		        sh '''
+		        echo " Nettoyage des conteneurs Docker potentiellement existants..."
+		        docker stop movie-service cast-service movie-db cast-db web || true
+		        docker rm movie-service cast-service movie-db cast-db web || true
+		        '''
+		    }
+		}
+        // ----------------
+        // Stage Build
+        // ----------------
         stage('Build') {
             steps {
                 sh '''
-                # Build application images only
+                #Construire les images de l appli
                 docker build -t $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG movie-service/
                 docker build -t $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG cast-service/
                 
-                # Pull base images (we'll use them directly)
+                # Pull les images de bases
                 docker pull $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
                 docker pull $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
                 '''
             }
         }
+        
+        // ----------------
+        // Stage Run
+        // ----------------
         stage('Run') {
             steps {
                 sh '''
@@ -97,6 +116,9 @@ pipeline {
                 '''
             }
         }
+        // ----------------
+        // Stage Test
+        // ----------------
         stage('Test') {
                     steps {
                         sh '''
@@ -107,42 +129,44 @@ pipeline {
                             echo "Attente Movie DB..."
                             sleep 2
                         done
-                        echo "✅ Movie DB disponible"
+                        echo " Movie DB disponible"
                 
                         until docker exec cast-db pg_isready -U cast_db_username -d cast_db_dev; do
                             echo "Attente Cast DB..."
                             sleep 2
                         done
-                        echo "✅ Cast DB disponible"
+                        echo " Cast DB disponible"
                 
-                        echo "🔍 Test des services depuis le conteneur web (Nginx)..."
+                        echo " Test des services depuis le conteneur web (Nginx)..."
                 
                         # Vérifier que movie-service est prêt
                         until docker exec web curl -sf http://movie-service:8000/api/v1/movies/docs; do
                             echo "Attente movie-service..."
                             sleep 2
                         done
-                        echo "✅ Movie service OK"
+                        echo " Movie service OK"
                 
                         # Vérifier que cast-service est prêt
                         until docker exec web curl -sf http://cast-service:8000/api/v1/casts/docs; do
                             echo "Attente cast-service..."
                             sleep 2
                         done
-                        echo "✅ Cast service OK"
+                        echo " Cast service OK"
                 
                         echo " Tous les tests de santé sont passés avec succès !"
                         '''
                     }
                 }
-                
+        // ----------------
+        // Stage Push
+        // ----------------
         stage('Push') {
             steps {
                 sh '''
-                # Login to Docker Hub
+                # Login a Docker Hub
                 docker login -u $DOCKER_LOGIN_USR -p $DOCKER_LOGIN_PSW
                 
-                # Push only custom application images
+                # Push seulement les images des appli customisées
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
                 

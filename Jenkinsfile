@@ -18,28 +18,28 @@ pipeline {
 
     } 
     agent any
-    
-    stage('Init') {
-       
-        steps {
-            script {
-                // ------------------------------
-                // Variables globales pour le pipeline
-                // ------------------------------
-                env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
-            }
+    stages {
+	    stage('Init') {
+	       
+	        steps {
+	            script {
+	                // ------------------------------
+	                // Variables globales pour le pipeline
+	                // ------------------------------
+	                env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+	                env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
+	            }
 
-		        // ------------------------------
-		        // Cleanup des conteneurs existants
-		        // ------------------------------
-		        sh '''
-		        echo " Nettoyage des conteneurs Docker potentiellement existants..."
-		        docker stop movie-service cast-service movie-db cast-db web || true
-		        docker rm movie-service cast-service movie-db cast-db web || true
-		        '''
-		    }
-		}
+			        // ------------------------------
+			        // Cleanup des conteneurs existants
+			        // ------------------------------
+			        sh '''
+			        echo " Nettoyage des conteneurs Docker potentiellement existants..."
+			        docker stop movie-service cast-service movie-db cast-db web || true
+			        docker rm movie-service cast-service movie-db cast-db web || true
+			        '''
+			    }
+			}
         // ----------------
         // Stage Build
         // ----------------

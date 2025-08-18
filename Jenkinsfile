@@ -101,43 +101,37 @@ pipeline {
                     steps {
                         sh '''
                         echo "🔍 Test des bases de données..."
-                        
-                        # Movie DB
-                        if ! docker exec movie-db pg_isready -U $MOVIE_DB_LOGIN_USR -d $DB_MOVIE_NAME; then
-                            echo " Movie DB KO"
-                            exit 1
-                        else
-                            echo " Movie DB disponible"
-                        fi
-                        
-                        # Cast DB
-                        if ! docker exec cast-db pg_isready -U $CAST_DB_LOGIN_USR -d $DB_CAST_NAME; then
-                            echo " Cast DB KO"
-                            exit 1
-                        else
-                            echo " Cast DB disponible"
-                        fi
-
-                        
-                        echo "Test des services depuis le conteneur web (Nginx)..."
-        
-                        # Test Movie service
-                        if ! docker exec web curl -sf http://movie-service:8001/api/v1/movies/docs; then
-                            echo " Movie service KO"
-                            exit 1
-                        else
-                            echo " Movie service OK"
-                        fi
-        
-                        # Test Cast service
-                        if ! docker exec web curl -sf http://cast-service:8002/api/v1/casts/docs; then
-                            echo " Cast service KO"
-                            exit 1
-                        else
-                            echo "Cast service OK"
-                        fi
-        
-                        echo " Tous les tests des services sont passés !"
+                
+                        # Vérifier que les bases sont prêtes
+                        until docker exec movie-db pg_isready -U movie_db_username -d movie_db_dev; do
+                            echo "Attente Movie DB..."
+                            sleep 2
+                        done
+                        echo "✅ Movie DB disponible"
+                
+                        until docker exec cast-db pg_isready -U cast_db_username -d cast_db_dev; do
+                            echo "Attente Cast DB..."
+                            sleep 2
+                        done
+                        echo "✅ Cast DB disponible"
+                
+                        echo "🔍 Test des services depuis le conteneur web (Nginx)..."
+                
+                        # Vérifier que movie-service est prêt
+                        until docker exec web curl -sf http://movie-service:8000/api/v1/movies/docs; do
+                            echo "Attente movie-service..."
+                            sleep 2
+                        done
+                        echo "✅ Movie service OK"
+                
+                        # Vérifier que cast-service est prêt
+                        until docker exec web curl -sf http://cast-service:8000/api/v1/casts/docs; do
+                            echo "Attente cast-service..."
+                            sleep 2
+                        done
+                        echo "✅ Cast service OK"
+                
+                        echo " Tous les tests de santé sont passés avec succès !"
                         '''
                     }
                 }

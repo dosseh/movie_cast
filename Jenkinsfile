@@ -53,6 +53,12 @@ pipeline {
                 # Pull les images de bases
                 docker pull $DOCKER_IMAGE_DB:$DOCKER_TAG_DB
                 docker pull $DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB
+
+                docker tag "$DOCKER_IMAGE_DB:$DOCKER_TAG_DB" "$DOCKER_HUB_REPOSITORY_IMAGE:movie-db-$DOCKER_TAG"
+                docker tag "$DOCKER_IMAGE_DB:$DOCKER_TAG_DB" "$DOCKER_HUB_REPOSITORY_IMAGE:cast-db-$DOCKER_TAG"
+                docker tag "$DOCKER_IMAGE_WEB:$DOCKER_TAG_WEB" "$DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG"
+
+
                 '''
             }
         }
@@ -169,7 +175,10 @@ pipeline {
                 # Push seulement les images des appli customisées
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:movie-$DOCKER_TAG
                 docker push $DOCKER_HUB_REPOSITORY_IMAGE:cast-$DOCKER_TAG
-                
+                docker push $DOCKER_HUB_REPOSITORY_IMAGE:movie-db-$DOCKER_TAG
+                docker push $DOCKER_HUB_REPOSITORY_IMAGE:cast-db-$DOCKER_TAG
+                docker push $DOCKER_HUB_REPOSITORY_IMAGE:web-$DOCKER_TAG
+
                 echo "Toute les images sont poussées avec succès !"
                 '''
             }

@@ -9,7 +9,7 @@ nginx:
   port: 8080
   replicas: 1
   image: nginx
-  tag: latest
+  tag: ""
   storage: 2Gi
 
 movieService:
@@ -17,8 +17,8 @@ movieService:
   replicas: 1
   port: 8000
   servicePort: 8001
-  image: dos7/movie
-  tag: latest
+  image: ""
+  tag: ""
   storage: 
     size: 2Gi
     configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
@@ -30,8 +30,8 @@ movieService:
     password: movie_db_password
     dbName: movie_db_dev
     port: 5432
-    image: postgres
-    tag: 12.1-alpine
+    image: nginx
+    tag: ""
     storage: 2Gi
 
 castService:
@@ -39,8 +39,8 @@ castService:
   replicas: 1
   port: 8000
   servicePort: 8002
-  image: dos7/cast
-  tag: latest
+  image: nginx
+  tag: ""
   storage: 
     size: 2Gi
     configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
@@ -52,8 +52,8 @@ castService:
     password: cast_db_password
     dbName: cast_db_dev
     port: 5432
-    image: postgres
-    tag: 12.1-alpine
+    image: nginx
+    tag: ""
     storage: 2Gi
 
 ingress:

@@ -24,7 +24,7 @@ spec:
         args: ["app.main:app", "--host", "0.0.0.0", "--port", "{{ .Values.castService.port }}"]
         volumeMounts:
         - name: app-volume
-          mountPath: /app/data
+          mountPath: {{ .Values.castService.storage.configMountPath }}
       volumes:
       - name: app-volume
         persistentVolumeClaim:

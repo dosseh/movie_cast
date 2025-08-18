@@ -7,4 +7,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.movieService.storage | default "2Gi" }}
+      storage: {{ .Values.movieService.storage.size | default "2Gi" }}

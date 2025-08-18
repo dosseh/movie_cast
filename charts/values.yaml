@@ -1,3 +1,9 @@
+
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets:
+  - name: registry-secret #Ajoute l' image pull secret pour faire un  pull kubernetes image a partir du registre docker Hub
+
+
 nginx:
   name: nginx
   port: 8080
@@ -13,7 +19,10 @@ movieService:
   servicePort: 8001
   image: dos7/movie
   tag: latest
-  storage: 2Gi
+  storage: 
+    size: 2Gi
+    configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
+
   db:
     name: movie-db
     replicas: 1
@@ -32,7 +41,9 @@ castService:
   servicePort: 8002
   image: dos7/cast
   tag: latest
-  storage: 2Gi
+  storage: 
+    size: 2Gi
+    configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
 
   db:
     name: cast-db

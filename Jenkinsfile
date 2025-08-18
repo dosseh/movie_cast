@@ -20,7 +20,6 @@ pipeline {
     agent any
     stages {
 		stage('Init') {
-		    when { expression { false } } // Ce stage est exécuté caché
 		    steps {
 		        script {
 		            // ------------------------------

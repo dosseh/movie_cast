@@ -18,6 +18,7 @@ pipeline {
 
     } 
     agent any
+    
     stage('Init') {
        
         steps {

@@ -1,10 +1,11 @@
 pipeline {
-     stages {
-        stage('Greeting') {
+    agent any
+
+    stages {
+        stage("Datascientest Env Variables") {
             steps {
-                echo 'hello Datascientest'
+                echo "The build id is ${env.BUILD_ID} or $BUILD_ID or ${BUILD_ID} "
             }
         }
     }
 }
-

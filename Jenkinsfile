@@ -18,16 +18,16 @@ pipeline {
 
     } 
     agent any
-    stages {
-		stage('Init') {
-		    steps {
-		        script {
-		            // ------------------------------
-		            // Variables DOCKER_TAG (concatenation de BUILD_ID et COMMIT_SHORT)
-		            // ------------------------------
-		            COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-		            DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
-		        }
+    stage('Init') {
+       
+        steps {
+            script {
+                // ------------------------------
+                // Variables globales pour le pipeline
+                // ------------------------------
+                env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
+            }
 
 		        // ------------------------------
 		        // Cleanup des conteneurs existants

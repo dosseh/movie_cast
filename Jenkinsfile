@@ -347,3 +347,4 @@ def autoMergeToNextEnvironment(sourceBranch, targetBranch) {
     echo " Merge réussi: ${sourceBranch} → ${targetBranch}"
     """
 }
+

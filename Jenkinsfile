@@ -17,7 +17,7 @@ pipeline {
         DOCKER_TAG_WEB = "latest"
         KUBECONFIG = credentials("KUBE_CONFIG")
         GITHUB_TOKEN = credentials("GITHUB_TOKEN")
-        GITHUB_REPO = "git@github.com/dosseh/movie_cast.git"
+        GITHUB_REPO = "github.com/dosseh/movie_cast.git"
     }
 
     agent any
@@ -253,7 +253,7 @@ def autoMergeToNextEnvironment(sourceBranch, targetBranch) {
     }
 
     echo " Push vers GitHub"
-    git push https://\${GITHUB_TOKEN}@github.com/dosseh/movie_cast.git ${targetBranch}
+    git push https://${GITHUB_TOKEN}@${GITHUB_REPO} ${targetBranch}
 
     echo " Merge réussi: ${sourceBranch} → ${targetBranch}"
     """

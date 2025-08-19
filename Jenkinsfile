@@ -198,8 +198,7 @@ pipeline {
 		                        cat $KUBE_CONFIG > .kube/config
 		                        cp charts/values.yaml values.yml
 		                        cat values.yml
-		                        helm upgrade --install app charts --values=values.yml --namespace dev
-
+		                        
 		                        helm upgrade --install skyblue skyblue-helm/ \
 		                                  --values=values.yml \
 		                                  --namespace ${KUBE_NAMESPACE_DEV} \

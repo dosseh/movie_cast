@@ -106,6 +106,7 @@ pipeline {
         }
 
         stage('Push') {
+        	when { expression {  return ['dev','qa','staging','master'].contains(env.BRANCH_NAME) } }
             steps {
                 sh '''
                 echo "Push vers Docker Hub..."

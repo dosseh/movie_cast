@@ -15,6 +15,7 @@ pipeline {
         DOCKER_TAG_DB = "12.1-alpine"
         DOCKER_IMAGE_WEB = "nginx"
         DOCKER_TAG_WEB = "latest"
+        KUBECONFIG = credentials("KUBE_CONFIG")
 
     } 
     agent any
@@ -185,15 +186,36 @@ pipeline {
         }
         
 		stage('Dev') {
-            environment {
-                KUBECONFIG = credentials("KUBE_CONFIG")
-            }
             steps {
                 script {
                     deployToHelm(env.KUBE_NAMESPACE_DEV)
                 }
             }
         }
+        stage('qa') {
+                    steps {
+                        script {
+                            deployToHelm(env.KUBE_NAMESPACE_QA)
+                        }
+                    }
+                }
+          stage('Staging') {
+                      steps {
+                          script {
+                              deployToHelm(env.KUBE_NAMESPACE_STAGING)
+                          }
+                      }
+                  }
+
+            stage('Prod') {
+                        steps {
+                            script {
+                                deployToHelm(env.KUBE_NAMESPACE_PROD)
+                            }
+                        }
+                    }
+                    
+        
     }
 }
 

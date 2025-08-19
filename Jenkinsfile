@@ -17,7 +17,7 @@ pipeline {
         DOCKER_TAG_WEB = "latest"
         KUBECONFIG = credentials("KUBE_CONFIG")
         GITHUB_TOKEN = credentials("GITHUB_TOKEN")
-        GITHUB_REPO ="git@github.com:dosseh/movie_cast.git"
+        GITHUB_REPO ="git@github.com/dosseh/movie_cast.git"
     }
     
     agent any

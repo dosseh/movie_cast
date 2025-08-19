@@ -16,7 +16,7 @@ data:
       }
       
       location /health {
-        return 200 'nginx OK';
+        return 200 "nginx OK sur {{ .Values.environment }}";
         add_header Content-Type text/plain;
       }
     }

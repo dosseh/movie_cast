@@ -235,6 +235,7 @@ pipeline {
                         echo "   Branche source: staging"
                         echo "   Branche cible: master"
                         echo "   Action requise: Merge manuel par un administrateur"
+                        autoMergeToNextEnvironment('staging', 'master')
                         '''
                     }
                 }

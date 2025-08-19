@@ -1,7 +1,7 @@
-#  Nouvelle fonctionnalité
+#  La fonctionnalité
 
 ##  Description
-<!-- Décris la nouvelle fonctionnalité -->
+<!-- Décris la fonctionnalité -->
 
 ##  Comment tester ?
 <!-- Étapes de test pour valider -->

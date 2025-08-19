@@ -26,11 +26,6 @@ pipeline {
         stage('Init') {
             steps {
                 script {
-	   			// Marquer le build comme invisible si ce n’est pas une branche officielle
-	            if (!['dev','qa','staging','master'].contains(env.BRANCH_NAME)) {
-	                currentBuild.displayName = "#${env.BUILD_ID} [INVISIBLE/${env.BRANCH_NAME}]"
-	                currentBuild.description = "Build de test uniquement, invisible dans l’UI"
-	            }
                     env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
                     env.CURRENT_BRANCH = sh(script: 'git branch --show-current', returnStdout: true).trim()

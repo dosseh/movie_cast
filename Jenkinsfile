@@ -213,6 +213,10 @@ pipeline {
 		                                  --set nginx.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
 		                                  --set nginx.tag="web-$DOCKER_TAG" \
 		                                  --set environment=${KUBE_NAMESPACE_DEV}
+
+		                          sleep 5
+		                          kubectl get pods -n $KUBE_NAMESPACE_DEV
+		                          rm -f values.yml
 		                        '''
 		                        }
 		                    }

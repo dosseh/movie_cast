@@ -26,6 +26,11 @@ pipeline {
         stage('Init') {
             steps {
                 script {
+	   			// Marquer le build comme invisible si ce n’est pas une branche officielle
+	            if (!['dev','qa','staging','master'].contains(env.BRANCH_NAME)) {
+	                currentBuild.displayName = "#${env.BUILD_ID} [INVISIBLE/${env.BRANCH_NAME}]"
+	                currentBuild.description = "Build de test uniquement, invisible dans l’UI"
+	            }
                     env.COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.DOCKER_TAG = "v.${env.BUILD_ID}.${env.COMMIT_SHORT}"
                     env.CURRENT_BRANCH = sh(script: 'git branch --show-current', returnStdout: true).trim()
@@ -197,39 +202,7 @@ pipeline {
             docker stop movie-service cast-service movie-db cast-db web || true
             docker rm movie-service cast-service movie-db cast-db web || true
             docker network rm movie-cast-net || true
-            '''   
-            script {
-            // Nettoyage silencieux des branches temporaires
-            echo "Nettoyage des branches temporaires (silencieux)..."
-
-            def stableBranches = ['dev', 'qa', 'staging', 'master', 'prod']
-
-            // On récupère le job parent (Multibranch Pipeline)
-            def parentJob = Jenkins.instance.getItemByFullName(env.JOB_NAME.split('/')[0])
-
-            parentJob.getItems().each { branchJob ->
-                def branchName = branchJob.name
-
-                // On ne touche pas aux branches stables
-                if (!stableBranches.contains(branchName)) {
-                    // Vérifier si la branche a été mergée dans une branche stable
-                    def isMerged = stableBranches.any { stableBranch ->
-                        sh(
-                            script: "git fetch origin ${stableBranch} && git branch -r --merged origin/${stableBranch} | grep -w origin/${branchName} || true",
-                            returnStatus: true
-                        ) == 0
-                    }
-
-                    if (isMerged) {
-                        try {
-                            branchJob.delete() // suppression silencieuse
-                        } catch (Exception e) {
-                            // aucune erreur affichée, silencieux
-                        }
-                    }
-                }
-             }
-          }        
+            '''           
         }
     }
 }

@@ -279,36 +279,38 @@ pipeline {
 // Fonction réutilisable pour le déploiement dans helm
 // -------------------
 def deployToHelm(namespace) {
-    sh """
-    echo "Configuration Kubernetes pour ${namespace}..."
-    rm -Rf .kube
-    mkdir .kube
-    cat $KUBECONFIG > .kube/config
-    cp charts/values.yaml values.yml
+    withCredentials([file(credentialsId: 'KUBE_CONFIG', variable: 'KUBECONFIG_FILE')]) {
+        sh """
+        echo "Configuration Kubernetes pour ${namespace}..."
+        mkdir -p .kube
+        cp \$KUBECONFIG_FILE .kube/config
+        cp charts/values.yaml values.yml
 
-    echo " Déploiement Helm vers ${namespace}..."
-    helm upgrade --install app charts/ \
-      --values=values.yml \
-      --namespace ${namespace} \
-      --set movieService.db.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
-      --set movieService.db.tag="movie-db-\$DOCKER_TAG" \
-      --set castService.db.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
-      --set castService.db.tag="cast-db-\$DOCKER_TAG" \
-      --set movieService.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
-      --set movieService.tag="movie-\$DOCKER_TAG" \
-      --set castService.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
-      --set castService.tag="cast-\$DOCKER_TAG" \
-      --set nginx.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
-      --set nginx.tag="web-\$DOCKER_TAG" \
-      --set environment=${namespace}
+        echo "Déploiement Helm vers ${namespace}..."
+        helm upgrade --install app charts/ \
+          --values=values.yml \
+          --namespace ${namespace} \
+          --create-namespace \
+          --set movieService.db.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
+          --set movieService.db.tag="movie-db-\$DOCKER_TAG" \
+          --set castService.db.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
+          --set castService.db.tag="cast-db-\$DOCKER_TAG" \
+          --set movieService.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
+          --set movieService.tag="movie-\$DOCKER_TAG" \
+          --set castService.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
+          --set castService.tag="cast-\$DOCKER_TAG" \
+          --set nginx.image=\${DOCKER_HUB_REPOSITORY_IMAGE} \
+          --set nginx.tag="web-\$DOCKER_TAG" \
+          --set environment=${namespace}
 
-    echo " Attente de la stabilisation des pods..."
-    sleep 10
-    kubectl get pods -n ${namespace}
-    rm -f values.yml
-    
-    echo "Déploiement ${namespace} terminé avec succès"
-    """
+        echo "Attente stabilisation des pods..."
+        sleep 10
+        kubectl get pods -n ${namespace}
+
+        rm -f values.yml
+        echo "Déploiement ${namespace} terminé avec succès"
+        """
+    }
 }
 
 // -------------------

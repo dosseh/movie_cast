@@ -131,13 +131,13 @@ pipeline {
                         echo "🔍 Test des bases de données..."
                 
                         # Vérifier que les bases sont prêtes
-                        until docker exec movie-db pg_isready -U movie_db_username -d movie_db_dev; do
+                        until docker exec movie-db pg_isready -U $MOVIE_DB_LOGIN_USR -d $DB_MOVIE_NAME; do
                             echo "Attente Movie DB..."
                             sleep 2
                         done
                         echo " Movie DB disponible"
                 
-                        until docker exec cast-db pg_isready -U cast_db_username -d cast_db_dev; do
+                        until docker exec cast-db pg_isready -U $CAST_DB_LOGIN_USR -d $DB_CAST_NAME; do
                             echo "Attente Cast DB..."
                             sleep 2
                         done
@@ -190,7 +190,7 @@ pipeline {
             }
             steps {
                 script {
-                    deployToHelm($KUBE_NAMESPACE_DEV)
+                    deployToHelm(env.KUBE_NAMESPACE_DEV)
                 }
             }
         }

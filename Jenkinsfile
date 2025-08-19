@@ -183,6 +183,42 @@ pipeline {
                 '''
             }
         }
+        
+		 stage('Dev'){
+		                environment
+		                {
+		                KUBE_CONFIG = credentials("KUBE_CONFIG")
+		                }
+		                    steps {
+		                        script {
+		                        sh '''
+		                        rm -Rf .kube
+		                        mkdir .kube
+		                        ls
+		                        cat $KUBE_CONFIG > .kube/config
+		                        cp charts/values.yaml values.yml
+		                        cat values.yml
+		                        helm upgrade --install app charts --values=values.yml --namespace dev
+
+		                        helm upgrade --install skyblue skyblue-helm/ \
+		                                  --values=values.yml \
+		                                  --namespace ${KUBE_NAMESPACE_DEV} \
+		                                  --set movieService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+		                                  --set movieService.db.tag="movie-db-$DOCKER_TAG" \
+		                                  --set castService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+		                                  --set castService.db.tag="cast-db-$DOCKER_TAG" \
+		                                  --set movieService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+		                                  --set movieService.tag="movie-$DOCKER_TAG" \
+		                                  --set castService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+		                                  --set castService.tag="cast-db-$DOCKER_TAG" \
+		                                  --set nginx.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+		                                  --set nginx.tag="web-$DOCKER_TAG" \
+		                                  --set environment=${KUBE_NAMESPACE_DEV}
+		                        '''
+		                        }
+		                    }
+
+		                }
     }
 
 }

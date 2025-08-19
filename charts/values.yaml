@@ -1,28 +1,29 @@
 
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets:
-  - name: registry-secret #Ajoute l' image pull secret pour faire un  pull kubernetes image a partir du registre docker Hub
+  - name: registry-secret
 
-
+# Configuration Nginx (reverse proxy)
 nginx:
   name: nginx
   port: 8080
   replicas: 1
-  image: nginx
-  tag: ""
+  image: "" # Sera surchargé par le pipeline
+  tag: ""   # Sera surchargé par le pipeline
   storage: 2Gi
 
+# Configuration du service Movie
 movieService:
   name: movie-service
   replicas: 1
   port: 8000
   servicePort: 8001
-  image: ""
-  tag: ""
-  storage: 
+  image: "" # Sera surchargé par le pipeline
+  tag: ""   # Sera surchargé par le pipeline
+  storage:
     size: 2Gi
-    configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
-
+    configMountPath: "app/data" # Ne pas stocker en PVC dans app directement
+  
+  # Base de données Movie
   db:
     name: movie-db
     replicas: 1
@@ -30,21 +31,23 @@ movieService:
     password: movie_db_password
     dbName: movie_db_dev
     port: 5432
-    image: nginx
-    tag: ""
+    image: "" # Sera surchargé par le pipeline (postgres)
+    tag: ""   # Sera surchargé par le pipeline
     storage: 2Gi
 
+# Configuration du service Cast
 castService:
   name: cast-service
   replicas: 1
   port: 8000
   servicePort: 8002
-  image: nginx
-  tag: ""
-  storage: 
+  image: "" # Sera surchargé par le pipeline
+  tag: ""   # Sera surchargé par le pipeline
+  storage:
     size: 2Gi
-    configMountPath: "app/data" # je ne dois pas stocker en pvc  dans app directement. ça ecrase le contenu de app.
-
+    configMountPath: "app/data" # Ne pas stocker en PVC dans app directement
+  
+  # Base de données Cast
   db:
     name: cast-db
     replicas: 1
@@ -52,16 +55,38 @@ castService:
     password: cast_db_password
     dbName: cast_db_dev
     port: 5432
-    image: nginx
-    tag: ""
+    image: "" # Sera surchargé par le pipeline (postgres)
+    tag: ""   # Sera surchargé par le pipeline
     storage: 2Gi
 
-
+# Environnement de déploiement
 environment: dev
 
+# Configuration Ingress
 ingress:
   hosts:
     - host: movie-cast.ip-ddns.com
       paths:
+        - path: /api/v1/movies
+          pathType: Prefix
         - path: /api/v1/casts
           pathType: Prefix
+        - path: /
+          pathType: Prefix
+
+# Configuration des ressources (optionnel)
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Configuration des health checks
+healthCheck:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3

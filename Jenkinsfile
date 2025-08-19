@@ -1,4 +1,4 @@
-pipeline { 
+pipeline {
     environment {
         KUBE_DOMAIN = "http://movie-cast.ip-ddns.com"
         KUBE_NAMESPACE_DEV = "dev"

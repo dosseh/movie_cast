@@ -199,7 +199,7 @@ pipeline {
 		                        cp charts/values.yaml values.yml
 		                        cat values.yml
 		                        
-		                        helm upgrade --install skyblue skyblue-helm/ \
+		                        helm upgrade --install app charts/ \
 		                                  --values=values.yml \
 		                                  --namespace ${KUBE_NAMESPACE_DEV} \
 		                                  --set movieService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \

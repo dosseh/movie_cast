@@ -1,4 +1,4 @@
-pipeline { 
+pipeline {
     environment {
         KUBE_DOMAIN = "http://movie-cast.ip-ddns.com"
         KUBE_NAMESPACE_DEV = "dev"
@@ -197,7 +197,7 @@ pipeline {
             docker stop movie-service cast-service movie-db cast-db web || true
             docker rm movie-service cast-service movie-db cast-db web || true
             docker network rm movie-cast-net || true
-            '''
+            '''           
         }
     }
 }

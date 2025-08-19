@@ -209,7 +209,7 @@ pipeline {
 		                                  --set movieService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
 		                                  --set movieService.tag="movie-$DOCKER_TAG" \
 		                                  --set castService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set castService.tag="cast-db-$DOCKER_TAG" \
+		                                  --set castService.tag="cast-$DOCKER_TAG" \
 		                                  --set nginx.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
 		                                  --set nginx.tag="web-$DOCKER_TAG" \
 		                                  --set environment=${KUBE_NAMESPACE_DEV}

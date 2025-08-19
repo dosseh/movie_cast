@@ -121,28 +121,72 @@ pipeline {
         }
 
         // Déploiements simplifiés avec fonction Helm
-        stage('Deploy Dev') { when { branch 'dev' }
-            steps { script { deployToHelm(env.KUBE_NAMESPACE_DEV) } }
-            post { success { autoMergeToNextEnvironment('dev','qa') } }
-        }
-
-        stage('Deploy QA') { when { branch 'qa' }
-            steps { script { deployToHelm(env.KUBE_NAMESPACE_QA) } }
-            post { success { autoMergeToNextEnvironment('qa','staging') } }
-        }
-
-        stage('Deploy Staging') { when { branch 'staging' }
-            steps { script { deployToHelm(env.KUBE_NAMESPACE_STAGING) } }
-            post { success { echo "Prêt pour merge manuel vers master" } }
-        }
-
-        stage('Deploy Prod') { when { branch 'master' }
+        stage('Deploy Dev') {
+            when { branch 'dev' }
             steps {
-                timeout(time:15, unit:"MINUTES") { input message:'Déployer en production ?', ok:'OUI' }
-                script { deployToHelm(env.KUBE_NAMESPACE_PROD) }
+                script {
+                    echo "Déploiement vers DEV"
+                    deployToHelm(env.KUBE_NAMESPACE_DEV)
+                }
             }
-            post { success { echo "Déploiement PRODUCTION réussi !" } }
+            post {
+                success {
+                    echo "Déploiement DEV réussi - Merge vers QA"
+                    autoMergeToNextEnvironment('dev','qa')
+                }
+            }
         }
+        
+        stage('Deploy QA') {
+            when { branch 'qa' }
+            steps {
+                script {
+                    echo "Déploiement vers QA"
+                    deployToHelm(env.KUBE_NAMESPACE_QA)
+                }
+            }
+            post {
+                success {
+                    echo "Déploiement QA réussi - Merge vers STAGING"
+                    autoMergeToNextEnvironment('qa','staging')
+                }
+            }
+        }
+        
+        stage('Deploy Staging') {
+            when { branch 'staging' }
+            steps {
+                script {
+                    echo "Déploiement vers STAGING"
+                    deployToHelm(env.KUBE_NAMESPACE_STAGING)
+                }
+            }
+            post {
+                success {
+                    echo "Déploiement STAGING réussi - Merge vers MASTER"
+                    autoMergeToNextEnvironment('staging','master')
+                }
+            }
+        }
+        
+        stage('Deploy Prod') {
+            when { branch 'master' }
+            steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Déployer en production ?', ok: 'OUI'
+                }
+                script {
+                    deployToHelm(env.KUBE_NAMESPACE_PROD)
+                }
+            }
+            post {
+                success {
+                    echo "Déploiement PRODUCTION réussi !"
+                }
+            }
+        }
+
+        
     }
 
     post {

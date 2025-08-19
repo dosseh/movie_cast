@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     environment {
         KUBE_DOMAIN = "http://movie-cast.ip-ddns.com"
         KUBE_NAMESPACE_DEV = "dev"
@@ -106,6 +106,7 @@ pipeline {
         }
 
         stage('Push') {
+        	when { expression {  return ['dev','qa','staging','master'].contains(env.BRANCH_NAME) } }
             steps {
                 sh '''
                 echo "Push vers Docker Hub..."

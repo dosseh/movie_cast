@@ -184,44 +184,46 @@ pipeline {
             }
         }
         
-		 stage('Dev'){
-		                environment
-		                {
-		                KUBECONFIG = credentials("KUBE_CONFIG")
-		                }
-		                    steps {
-		                        script {
-		                        sh '''
-		                        rm -Rf .kube
-		                        mkdir .kube
-		                        ls
-		                        cat $KUBECONFIG > .kube/config
-		                        cp charts/values.yaml values.yml
-		                        cat values.yml
-		                        
-		                        helm upgrade --install app charts/ \
-		                                  --values=values.yml \
-		                                  --namespace ${KUBE_NAMESPACE_DEV} \
-		                                  --set movieService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set movieService.db.tag="movie-db-$DOCKER_TAG" \
-		                                  --set castService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set castService.db.tag="cast-db-$DOCKER_TAG" \
-		                                  --set movieService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set movieService.tag="movie-$DOCKER_TAG" \
-		                                  --set castService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set castService.tag="cast-$DOCKER_TAG" \
-		                                  --set nginx.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
-		                                  --set nginx.tag="web-$DOCKER_TAG" \
-		                                  --set environment=${KUBE_NAMESPACE_DEV}
-
-		                          sleep 15
-		                          kubectl get pods -n $KUBE_NAMESPACE_DEV
-		                          rm -f values.yml
-		                        '''
-		                        }
-		                    }
-
-		                }
+		stage('Dev') {
+            environment {
+                KUBECONFIG = credentials("KUBE_CONFIG")
+            }
+            steps {
+                script {
+                    deployToHelm($KUBE_NAMESPACE_DEV)
+                }
+            }
+        }
     }
+}
 
+// -------------------
+// Fonction réutilisable pour le deploiement dans helm
+// -------------------
+def deployToHelm(namespace) {
+    sh """
+    rm -Rf .kube
+    mkdir .kube
+    cat $KUBECONFIG > .kube/config
+    cp charts/values.yaml values.yml
+
+    helm upgrade --install app charts/ \
+      --values=values.yml \
+      --namespace ${namespace} \
+      --set movieService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+      --set movieService.db.tag="movie-db-\$DOCKER_TAG" \
+      --set castService.db.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+      --set castService.db.tag="cast-db-\$DOCKER_TAG" \
+      --set movieService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+      --set movieService.tag="movie-\$DOCKER_TAG" \
+      --set castService.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+      --set castService.tag="cast-\$DOCKER_TAG" \
+      --set nginx.image=${DOCKER_HUB_REPOSITORY_IMAGE} \
+      --set nginx.tag="web-\$DOCKER_TAG" \
+      --set environment=${namespace}
+
+    sleep 10
+    kubectl get pods -n ${namespace}
+    rm -f values.yml
+    """
 }

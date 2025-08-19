@@ -71,22 +71,6 @@ ingress:
           pathType: Prefix
         - path: /api/v1/casts
           pathType: Prefix
-        - path: /
+        - path: /health
           pathType: Prefix
 
-# Configuration des ressources (optionnel)
-resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
-
-# Configuration des health checks
-healthCheck:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3

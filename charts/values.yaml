@@ -56,5 +56,12 @@ castService:
     tag: ""
     storage: 2Gi
 
+
+environment: dev
+
 ingress:
-  host: movie-cast.ip-ddns.com
+  hosts:
+    - host: movie-cast.ip-ddns.com
+      paths:
+        - path: /api/v1/casts
+          pathType: Prefix

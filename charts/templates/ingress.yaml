@@ -6,20 +6,18 @@ metadata:
     traefik.ingress.kubernetes.io/router.entrypoints: web
 spec:
   rules:
-  - host: {{ .Values.ingress.host }}
-    http:
-      paths:
-      - path: /api/v1/movies
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Values.nginx.name }}
-            port:
-              number: {{ .Values.nginx.port }}
-      - path: /api/v1/casts
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Values.nginx.name }}
-            port:
-              number: {{ .Values.nginx.port }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ if eq $.Values.environment "prod" }}{{ .host }}{{ else }}{{ $.Values.environment }}.{{ .host }}{{ end }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $.Values.nginx.name }}
+                port:
+                  number: {{ $.Values.nginx.port }}
+          {{- end }}
+    {{- end }}
+

@@ -317,47 +317,33 @@ def autoMergeToNextEnvironment(sourceBranch, targetBranch) {
     sh """
     echo " Merge automatique de ${sourceBranch} vers ${targetBranch}"
 
-    # Configuration Git pour CI Bot
+    # Config Git
     git config user.name "CI Bot"
     git config user.email "ci-bot@movie-cast.com"
 
-    # Fetch spécifique des branches source et cible
-    echo "Récupération de la branche source: ${sourceBranch}"
-    git fetch origin ${sourceBranch}
-    
-    echo "Récupération de la branche cible: ${targetBranch}"
-    git fetch origin ${targetBranch}
+    echo " Fetch de toutes les branches"
+    git fetch --all --prune
 
-    # Checkout de la branche cible avec création/reset
-    echo "Checkout de la branche cible: ${targetBranch}"
-    git checkout -B ${targetBranch} origin/${targetBranch}
+    # Vérifier si la branche cible existe sur le remote
+    if git show-ref --verify --quiet refs/remotes/origin/${targetBranch}; then
+        echo " La branche distante ${targetBranch} existe"
+        git checkout -B ${targetBranch} origin/${targetBranch}
+    else
+        echo "La branche distante ${targetBranch} n'existe pas encore"
+        echo " Création de ${targetBranch} à partir de ${sourceBranch}"
+        git checkout -B ${targetBranch} origin/${sourceBranch}
+    fi
 
-    # Merge de la branche source avec gestion des conflits
-    echo "Merge de origin/${sourceBranch} vers ${targetBranch}"
-    git merge --no-ff --no-edit origin/${sourceBranch} -m "Auto-merge de ${sourceBranch} vers ${targetBranch} - Build #\${BUILD_NUMBER}" || {
-        echo " Conflits détectés entre ${sourceBranch} et ${targetBranch}. Merge manuel requis."
-        echo " Fichiers en conflits :"
+    echo " Merge de origin/${sourceBranch} vers ${targetBranch}"
+    git merge --no-ff --no-edit origin/${sourceBranch} -m "Auto-merge ${sourceBranch} → ${targetBranch} - Build #\${BUILD_NUMBER}" || {
+        echo " Conflits détectés entre ${sourceBranch} et ${targetBranch}"
         git diff --name-only --diff-filter=U
-        
-        echo ""
-        echo " Conseils pour résoudre les conflits manuellement :"
-        echo "git checkout ${targetBranch}                    # Passe sur la branche ${targetBranch}"
-        echo "git pull origin ${targetBranch}                # Récupère la dernière version"
-        echo "git merge origin/${sourceBranch}               # Tente de merger ${sourceBranch}"
-        echo "# Si conflit :"
-        echo "git diff --name-only --diff-filter=U           # Liste les fichiers en conflit"
-        echo "# Puis résoudre les conflits et :"
-        echo "git add <fichier_corrigé>                      # Pour chaque fichier corrigé"
-        echo "git commit                                     # Termine le merge"
-        echo "git push origin ${targetBranch}                # Pousse les modifications"
-        
         exit 1
     }
 
-    # Push avec token GitHub (URL corrigée)
-    echo "Push vers GitHub..."
+    echo " Push vers GitHub"
     git push https://\${GITHUB_TOKEN}@github.com/dosseh/movie_cast.git ${targetBranch}
 
-    echo " ✅ Merge automatique réussi: ${sourceBranch} → ${targetBranch}"
+    echo " Merge réussi: ${sourceBranch} → ${targetBranch}"
     """
 }

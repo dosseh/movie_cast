@@ -187,7 +187,7 @@ pipeline {
 		 stage('Dev'){
 		                environment
 		                {
-		                KUBE_CONFIG = credentials("KUBE_CONFIG")
+		                KUBECONFIG = credentials("KUBE_CONFIG")
 		                }
 		                    steps {
 		                        script {
@@ -195,7 +195,7 @@ pipeline {
 		                        rm -Rf .kube
 		                        mkdir .kube
 		                        ls
-		                        cat $KUBE_CONFIG > .kube/config
+		                        cat $KUBECONFIG > .kube/config
 		                        cp charts/values.yaml values.yml
 		                        cat values.yml
 		                        

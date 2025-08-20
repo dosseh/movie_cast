@@ -139,7 +139,7 @@ Envoi vers Docker Hub
 ### Workflow automatisé
 ```mermaid
 graph LR
-    A[Commit sur dev] --> B[Tests + Build]
+    A[Commit sur dev] --> B[RUN + BUILD + Tests + PUSH]
     B --> C[Deploy DEV]
     C --> D[Auto-merge dev → qa]
     D --> E[Deploy QA]

@@ -5,7 +5,8 @@
 Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'application Movie Cast, une application microservices composée de services de gestion de films et de casting. Le pipeline automatise le processus de build, test, déploiement et promotion entre les différents environnements.
 
 ##  Architecture de la solution
-![Pipeline](./images/pipeline.png)
+
+<img width="1393" height="781" alt="pipeline-2" src="https://github.com/user-attachments/assets/76dc10d2-acc5-4754-ba66-e840c2094f20" />
 
 ### Applications déployées
 

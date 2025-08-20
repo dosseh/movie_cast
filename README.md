@@ -5,11 +5,37 @@
 Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'application Movie Cast, une application microservices composée de services de gestion de films et de casting. Le pipeline automatise le processus de build, test, déploiement et promotion entre les différents environnements.
 
 ##  Architecture de la solution
-
-<img width="1393" height="781" alt="pipeline-2" src="https://github.com/user-attachments/assets/76dc10d2-acc5-4754-ba66-e840c2094f20" />
+<img width="1576" height="881" alt="Capture d’écran 2025-08-20 à 03 06 16" src="https://github.com/user-attachments/assets/33fd085c-c81e-4d1c-b539-51040251c75e" />
+<img width="1576" height="812" alt="Capture d’écran 2025-08-20 à 03 08 48" src="https://github.com/user-attachments/assets/c7c0f30d-691a-40d7-a8d3-04454903d2d2" />
+<img width="1576" height="474" alt="Capture d’écran 2025-08-20 à 03 09 45" src="https://github.com/user-attachments/assets/53cfd5d5-3795-4a8c-aafc-3a5a8c7dc40d" />
 
 ### Applications déployées
 
+
+###  Structure des Charts
+
+
+charts/
+├── Chart.yaml
+├── README.md
+├── templates
+│   ├── _helpers.tpl
+│   ├── cast-db-deployment.yaml
+│   ├── cast-db-service.yaml
+│   ├── cast-service-deployment.yaml
+│   ├── cast-service-pvc.yaml
+│   ├── cast-service-service.yaml
+│   ├── ingress.yaml
+│   ├── movie-db-deployment.yaml
+│   ├── movie-db-service.yaml
+│   ├── movie-service-deployment.yaml
+│   ├── movie-service-pvc.yaml
+│   ├── movie-service-service.yaml
+│   ├── nginx-configmap.yaml
+│   ├── nginx-deployment.yaml
+│   ├── nginx-service.yaml
+│   └── tests
+└── values.yaml
 
 L'application **Movie Cast** est composée de plusieurs services :
 

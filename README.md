@@ -5,11 +5,37 @@
 Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'application Movie Cast, une application microservices composée de services de gestion de films et de casting. Le pipeline automatise le processus de build, test, déploiement et promotion entre les différents environnements.
 
 ##  Architecture de la solution
+<img width="1576" height="877" alt="Capture d’écran 2025-08-20 à 03 20 29" src="https://github.com/user-attachments/assets/c27a204e-71ed-4c39-9857-54e1ddbcb7e0" />
+<img width="1576" height="812" alt="Capture d’écran 2025-08-20 à 03 08 48" src="https://github.com/user-attachments/assets/c7c0f30d-691a-40d7-a8d3-04454903d2d2" />
 
-<img width="1393" height="781" alt="pipeline-2" src="https://github.com/user-attachments/assets/76dc10d2-acc5-4754-ba66-e840c2094f20" />
+
+###  Structure des Charts
+
+```text
+charts/
+├── Chart.yaml
+├── README.md
+├── templates
+│   ├── _helpers.tpl
+│   ├── cast-db-deployment.yaml
+│   ├── cast-db-service.yaml
+│   ├── cast-service-deployment.yaml
+│   ├── cast-service-pvc.yaml
+│   ├── cast-service-service.yaml
+│   ├── ingress.yaml
+│   ├── movie-db-deployment.yaml
+│   ├── movie-db-service.yaml
+│   ├── movie-service-deployment.yaml
+│   ├── movie-service-pvc.yaml
+│   ├── movie-service-service.yaml
+│   ├── nginx-configmap.yaml
+│   ├── nginx-deployment.yaml
+│   ├── nginx-service.yaml
+│   └── tests
+└── values.yaml
+```
 
 ### Applications déployées
-
 
 L'application **Movie Cast** est composée de plusieurs services :
 
@@ -113,7 +139,7 @@ Envoi vers Docker Hub
 ### Workflow automatisé
 ```mermaid
 graph LR
-    A[Commit sur dev] --> B[Tests + Build]
+    A[Commit sur dev] --> B[RUN + BUILD + Tests + PUSH]
     B --> C[Deploy DEV]
     C --> D[Auto-merge dev → qa]
     D --> E[Deploy QA]

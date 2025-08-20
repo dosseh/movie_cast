@@ -14,29 +14,29 @@ Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'appl
 
 ###  Structure des Charts
 
-
+```text
 charts/
 ├── Chart.yaml
 ├── README.md
 ├── templates
-│   ├── _helpers.tpl
-│   ├── cast-db-deployment.yaml
-│   ├── cast-db-service.yaml
-│   ├── cast-service-deployment.yaml
-│   ├── cast-service-pvc.yaml
-│   ├── cast-service-service.yaml
-│   ├── ingress.yaml
-│   ├── movie-db-deployment.yaml
-│   ├── movie-db-service.yaml
-│   ├── movie-service-deployment.yaml
-│   ├── movie-service-pvc.yaml
-│   ├── movie-service-service.yaml
-│   ├── nginx-configmap.yaml
-│   ├── nginx-deployment.yaml
-│   ├── nginx-service.yaml
-│   └── tests
+│   ├── _helpers.tpl
+│   ├── cast-db-deployment.yaml
+│   ├── cast-db-service.yaml
+│   ├── cast-service-deployment.yaml
+│   ├── cast-service-pvc.yaml
+│   ├── cast-service-service.yaml
+│   ├── ingress.yaml
+│   ├── movie-db-deployment.yaml
+│   ├── movie-db-service.yaml
+│   ├── movie-service-deployment.yaml
+│   ├── movie-service-pvc.yaml
+│   ├── movie-service-service.yaml
+│   ├── nginx-configmap.yaml
+│   ├── nginx-deployment.yaml
+│   ├── nginx-service.yaml
+│   └── tests
 └── values.yaml
-
+```
 L'application **Movie Cast** est composée de plusieurs services :
 
 -   **movie-service** : Service de gestion des films (API REST)

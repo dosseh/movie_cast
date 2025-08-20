@@ -9,6 +9,10 @@ Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'appl
 <img width="1576" height="812" alt="Capture d’écran 2025-08-20 à 03 08 48" src="https://github.com/user-attachments/assets/c7c0f30d-691a-40d7-a8d3-04454903d2d2" />
 
 
+##  Demo VIDEO
+  [Liens video pour demo](https://share.icloud.com/photos/03dCyLpnrJrTq1pzOWm_6TH9A)
+
+  
 ###  Structure des Charts
 
 ```text

@@ -8,8 +8,6 @@ Cette documentation présente le pipeline CI/CD Jenkins mis en place pour l'appl
 <img width="1576" height="877" alt="Capture d’écran 2025-08-20 à 03 20 29" src="https://github.com/user-attachments/assets/c27a204e-71ed-4c39-9857-54e1ddbcb7e0" />
 <img width="1576" height="812" alt="Capture d’écran 2025-08-20 à 03 08 48" src="https://github.com/user-attachments/assets/c7c0f30d-691a-40d7-a8d3-04454903d2d2" />
 
-### Applications déployées
-
 
 ###  Structure des Charts
 
@@ -36,6 +34,9 @@ charts/
 │   └── tests
 └── values.yaml
 ```
+
+### Applications déployées
+
 L'application **Movie Cast** est composée de plusieurs services :
 
 -   **movie-service** : Service de gestion des films (API REST)
